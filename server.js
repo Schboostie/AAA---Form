@@ -1,26 +1,30 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
 const bodyParser = require("body-parser");
+const fs = require("fs");
 
 const app = express();
 const port = 3000;
 
 app.use(bodyParser.json());
 
+// Load configuration from the config.json file
+const configPath = "./config.json";
+const config = JSON.parse(fs.readFileSync(configPath, "utf-8"));
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: config.email,
+    pass: config.password,
+  },
+});
+
 app.post("/submit", (req, res) => {
   const { name, email, message } = req.body;
 
-  // Replace these values with your own email and SMTP server details
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: config.email,
-      pass: config.password,
-    },
-  });
-
   const mailOptions = {
-    from: "your-email@gmail.com",
+    from: config.email,
     to: "recipient-email@example.com",
     subject: "New Form Submission",
     text: `Name: ${name}\nEmail: ${email}\nMessage: ${message}`,
